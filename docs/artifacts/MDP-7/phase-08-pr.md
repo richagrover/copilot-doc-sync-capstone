@@ -3,43 +3,63 @@
 ## Pull Request Summary
 
 - Jira key: `MDP-7`
-- Title: `MDP-7: Build task manager application with SDLC artifact sync`
+- Title: `MDP-7: Multi-user task manager with agentic SDLC sync`
 - Base branch: `main`
-- Head branch: `feature/MDP-7-task-manager` (local branch tracks `origin/feature/MDP-7-task-manager`).
-- Repository: `richagrover22/copilot-doc-sync-capstone`.
-- Status: BLOCKED on 2026-10-29 by GitHub validation error `must be a collaborator` (HTTP 422); user approval is granted.
+- Head branch: `feature/MDP-7-task-manager`
+- Repository: `richagrover/copilot-doc-sync-capstone`
+- Pull request: **#1** — https://github.com/richagrover/copilot-doc-sync-capstone/pull/1
+  (existing open PR for this head/base, updated by this phase; the 2026-10-29
+  collaborator blocker against the old `richagrover22` remote no longer applies)
 
-## Proposed Description
+## Description (applied to PR #1)
 
 ### Summary
 
-- Add a single-user Flask and SQLite task manager with create, view, edit, delete, status, priority, and filtering support.
-- Add CSRF protection, server-side validation, parameterized SQLite access, and local-only development startup.
-- Add Jira-driven SDLC requirements, architecture, design review, implementation manifest, development, code-review, and verification artifacts.
+- Implement the HITL-approved multi-user scope: local username/password accounts,
+  server-side sessions (opaque tokens hashed at rest, 7-day expiry, rotation on
+  login), and per-user task isolation on every route and query.
+- Retain task CRUD with status/priority and combinable filtering; add structured
+  JSON logging (`auth.*`, `task.*`, `http.error`) that never records secrets.
+- Keep CSRF protection, server-side validation, parameterized SQLite access, and
+  loopback-only development startup.
+- Sync documentation: rewritten `task-manager-app/README.md` and new `docs/api.md`
+  with full route/request/response contracts (parity-gated in Phase 07).
+- Regenerate all Jira-driven SDLC artifacts under `docs/artifacts/MDP-7/` from a
+  live Jira fetch and a 2-round interactive HITL requirements session.
 
-### Verification
+### Verification (2026-11-03)
 
-- `python -m pytest -q` — 15 passed (re-run 2026-10-28).
-- Workspace diagnostics — no errors.
-- `git diff --check` — passed.
-- Browser smoke check — task page and stylesheet returned HTTP 200.
+- `python -m pytest -q` — **32 passed in 9.52 s** (< 60 s gate).
+- Coverage — **99%** total (gate 80%); 100% on all store modules.
+- HTTP smoke checks — 6/6 expected codes (anonymous redirect, auth pages,
+  stylesheet, invalid-filter handling, anonymous mutation blocked).
+- README/`docs/api.md` route parity — exact match with `app.url_map`.
+- Code review — passed 7-point checklist with 4 non-blocking observations
+  (rate limiting, username enumeration, absolute expiry, security headers).
 
 ### Notes
 
-- Jira information was taken from the repository's local snapshot; live Jira was not queried.
-- The existing edit to `.github/agents/orchestrator.agent.md` is intentionally excluded from this PR.
-- A stable `TASK_MANAGER_SECRET_KEY` should be configured when running the app beyond a local one-off session.
+- Legacy single-user task data is intentionally dropped on first start
+  (approved Phase 03 decision; noted in README).
+- Set `TASK_MANAGER_SECRET_KEY` for sessions that survive app restarts.
+- Unrelated local `.github`/`.vscode` modifications and CAPSTONEP-25 artifact
+  deletions are intentionally excluded from this PR.
 
-## Pull Request Link
+## Phase Checklist
 
-No MDP-7 PR was created. GitHub MCP returned no open PR matching `richagrover22:feature/MDP-7-task-manager` into `main`. The latest direct creation request failed with HTTP 422 `Validation Failed`, error resource `Issue`, code `custom`, message `must be a collaborator`. Earlier PR #1 belongs to CAPSTONEP-25 and must not be reused for MDP-7.
+| Phase | Artifact | Status |
+| --- | --- | --- |
+| 01 | `phase-01-requirements.md` + `jira_snapshot.json` (live fetch, HITL Q&A) | COMPLETED |
+| 02 | `phase-02-architecture.md` (HLD + LLD) | COMPLETED |
+| 03 | `phase-03-design-review.md` (7-gap analysis) | COMPLETED |
+| 04 | `phase-04-implementation-manifest.md` | COMPLETED |
+| 05 | `phase-05-dev-log.md` (multi-user implementation) | COMPLETED |
+| 06 | `phase-06-code-review.md` (passed, 4 observations) | COMPLETED |
+| 07 | `phase-07-verification.md` (32 tests, 99% coverage) | COMPLETED |
+| 08 | This file; PR #1 updated | COMPLETED |
 
-## Retry Checkpoint (2026-10-29)
+## HITL Approval Trail
 
-- User authorized branch, commit, push, and PR creation against `main` and most recently reported configuring a dynamic token prompt.
-- The delegated orchestrator lacked the MCP loader; the parent session loaded GitHub MCP tools and retried directly.
-- The latest matching open-PR lookup returned an empty list. Direct PR creation again returned HTTP 422 `must be a collaborator` after the reported dynamic-token configuration. No token values were read or displayed; the active account and whether a fresh token prompt occurred were not verified.
-- Phases 01-07 were skipped because they are completed. Application tests and phase hooks were not rerun by this retry.
-- No PR template was found by local filename search. The proposed description above preserves the previously recorded verification results; application tests were not rerun for this retry.
-- Unrelated `.github` and `.vscode` changes and CAPSTONEP-25 deletions were preserved.
-- No repeated blind creation requests were made. Use a credential belonging to the repository owner or an authorized collaborator, or ask the owner to grant collaborator access to the account used by MCP and accept any invitation. Token permissions alone do not grant repository collaborator membership. Restart the GitHub MCP server after changing credentials, then check for an existing matching PR before creating. Record its confirmed URL and number before completing Phase 08. Do not merge.
+1. Phase 01 executed in interactive mode: 2 Q&A rounds answered directly by the user.
+2. Explicit user approval gates passed before Phases 02, 04-05, 06, 07, and 08.
+3. Do not merge without the repository owner's review.

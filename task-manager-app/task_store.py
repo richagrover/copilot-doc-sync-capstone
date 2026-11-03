@@ -1,78 +1,54 @@
 from __future__ import annotations
 
-import sqlite3
-from contextlib import closing, contextmanager
-from datetime import datetime, timezone
 from pathlib import Path
-from typing import Iterator
+
+from db import connection, utc_now
 
 STATUSES = ("todo", "in_progress", "done")
 PRIORITIES = ("low", "medium", "high")
 
 
-@contextmanager
-def _connection(database_path: str | Path) -> Iterator[sqlite3.Connection]:
-    with closing(sqlite3.connect(str(database_path), timeout=5)) as connection:
-        connection.row_factory = sqlite3.Row
-        with connection:
-            yield connection
-
-
-def initialize_database(database_path: str | Path) -> None:
-    Path(database_path).parent.mkdir(parents=True, exist_ok=True)
-    with _connection(database_path) as connection:
-        connection.execute(
-            """
-            CREATE TABLE IF NOT EXISTS tasks (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                title TEXT NOT NULL CHECK(length(trim(title)) BETWEEN 1 AND 200),
-                description TEXT NOT NULL DEFAULT '',
-                status TEXT NOT NULL CHECK(status IN ('todo', 'in_progress', 'done')),
-                priority TEXT NOT NULL CHECK(priority IN ('low', 'medium', 'high')),
-                created_at TEXT NOT NULL,
-                updated_at TEXT NOT NULL
-            )
-            """
-        )
-
-
 def create_task(
     database_path: str | Path,
+    user_id: int,
     *,
     title: str,
     description: str,
     status: str,
     priority: str,
 ) -> int:
-    now = _utc_now()
-    with _connection(database_path) as connection:
-        cursor = connection.execute(
+    now = utc_now()
+    with connection(database_path) as conn:
+        cursor = conn.execute(
             """
-            INSERT INTO tasks (title, description, status, priority, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO tasks (user_id, title, description, status, priority, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
             """,
-            (title, description, status, priority, now, now),
+            (user_id, title, description, status, priority, now, now),
         )
         return int(cursor.lastrowid)
 
 
-def get_task(database_path: str | Path, task_id: int) -> dict[str, int | str] | None:
-    with _connection(database_path) as connection:
-        row = connection.execute(
-            "SELECT * FROM tasks WHERE id = ?",
-            (task_id,),
+def get_task(
+    database_path: str | Path, user_id: int, task_id: int
+) -> dict[str, int | str] | None:
+    with connection(database_path) as conn:
+        row = conn.execute(
+            "SELECT * FROM tasks WHERE id = ? AND user_id = ?",
+            (task_id, user_id),
         ).fetchone()
         return dict(row) if row is not None else None
 
 
 def list_tasks(
     database_path: str | Path,
+    user_id: int,
     *,
     status: str | None = None,
     priority: str | None = None,
 ) -> list[dict[str, int | str]]:
-    conditions: list[str] = []
-    values: list[str] = []
+    conditions = ["user_id = ?"]
+    values: list[int | str] = [user_id]
     if status is not None:
         conditions.append("status = ?")
         values.append(status)
@@ -80,18 +56,20 @@ def list_tasks(
         conditions.append("priority = ?")
         values.append(priority)
 
-    query = "SELECT * FROM tasks"
-    if conditions:
-        query += " WHERE " + " AND ".join(conditions)
-    query += " ORDER BY created_at DESC, id DESC"
+    query = (
+        "SELECT * FROM tasks WHERE "
+        + " AND ".join(conditions)
+        + " ORDER BY created_at DESC, id DESC"
+    )
 
-    with _connection(database_path) as connection:
-        rows = connection.execute(query, values).fetchall()
+    with connection(database_path) as conn:
+        rows = conn.execute(query, values).fetchall()
         return [dict(row) for row in rows]
 
 
 def update_task(
     database_path: str | Path,
+    user_id: int,
     task_id: int,
     *,
     title: str,
@@ -99,23 +77,22 @@ def update_task(
     status: str,
     priority: str,
 ) -> bool:
-    with _connection(database_path) as connection:
-        cursor = connection.execute(
+    with connection(database_path) as conn:
+        cursor = conn.execute(
             """
             UPDATE tasks
             SET title = ?, description = ?, status = ?, priority = ?, updated_at = ?
-            WHERE id = ?
+            WHERE id = ? AND user_id = ?
             """,
-            (title, description, status, priority, _utc_now(), task_id),
+            (title, description, status, priority, utc_now(), task_id, user_id),
         )
         return cursor.rowcount == 1
 
 
-def delete_task(database_path: str | Path, task_id: int) -> bool:
-    with _connection(database_path) as connection:
-        cursor = connection.execute("DELETE FROM tasks WHERE id = ?", (task_id,))
+def delete_task(database_path: str | Path, user_id: int, task_id: int) -> bool:
+    with connection(database_path) as conn:
+        cursor = conn.execute(
+            "DELETE FROM tasks WHERE id = ? AND user_id = ?",
+            (task_id, user_id),
+        )
         return cursor.rowcount == 1
-
-
-def _utc_now() -> str:
-    return datetime.now(timezone.utc).isoformat(timespec="microseconds")

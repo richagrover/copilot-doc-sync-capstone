@@ -1,32 +1,10 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Task Manager</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-  </head>
-  <body>
-    <main class="page">
-      <header class="page-header">
-        <div>
-          <p class="eyebrow">Personal workspace</p>
-          <h1>Task Manager</h1>
-          <p class="intro">Keep your next steps clear and moving.</p>
-        </div>
-        <span class="task-count">{{ tasks|length }} task{% if tasks|length != 1 %}s{% endif %}</span>
-      </header>
+{% extends "base.html" %}
 
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-          <div class="notifications" aria-live="polite">
-            {% for category, message in messages %}
-              <p class="notice notice-{{ category }}">{{ message }}</p>
-            {% endfor %}
-          </div>
-        {% endif %}
-      {% endwith %}
+{% block header_extra %}
+  <span class="task-count">{{ tasks|length }} task{% if tasks|length != 1 %}s{% endif %}</span>
+{% endblock %}
 
+{% block content %}
       <section class="panel" aria-labelledby="new-task-heading">
         <h2 id="new-task-heading">Add a task</h2>
         <form action="{{ url_for('create_task_route') }}" method="post" class="task-form">
@@ -142,6 +120,4 @@
           </div>
         {% endif %}
       </section>
-    </main>
-  </body>
-</html>
+{% endblock %}

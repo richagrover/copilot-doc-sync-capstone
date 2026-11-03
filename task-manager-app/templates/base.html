@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Task Manager{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  </head>
+  <body>
+    <main class="page">
+      <header class="page-header">
+        <div>
+          <p class="eyebrow">{% block eyebrow %}Personal workspace{% endblock %}</p>
+          <h1>{% block heading %}Task Manager{% endblock %}</h1>
+          <p class="intro">{% block intro %}Keep your next steps clear and moving.{% endblock %}</p>
+        </div>
+        {% if g.user %}
+          <div class="user-bar">
+            <span class="user-name">Signed in as <strong>{{ g.user.username }}</strong></span>
+            <form action="{{ url_for('auth.logout') }}" method="post" class="logout-form">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button class="button button-secondary" type="submit">Sign out</button>
+            </form>
+          </div>
+        {% endif %}
+        {% block header_extra %}{% endblock %}
+      </header>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="notifications" aria-live="polite">
+            {% for category, message in messages %}
+              <p class="notice notice-{{ category }}">{{ message }}</p>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
+    </main>
+  </body>
+</html>

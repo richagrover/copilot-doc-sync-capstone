@@ -1,0 +1,37 @@
+{
+  "jira_key": "MDP-7",
+  "retrieval_status": "success",
+  "verified_against_jira": true,
+  "fetched_at": "2026-11-03",
+  "retrieval_method": "Jira REST API v3 using the server configuration in .github/mcp.json (JIRA_URL + env-provided credentials; no secrets recorded)",
+  "source_url": "https://richagrover22.atlassian.net/browse/MDP-7",
+  "ticket": {
+    "id": "10038",
+    "project": "MDP (My discovery project)",
+    "issue_type": "Idea",
+    "summary": "Build Task Manager Application with Agentic SDLC Sync",
+    "description": "Implement enterprise-grade task manager application with automated SDLC documentation sync",
+    "status": "Parking lot",
+    "priority": "Medium",
+    "reporter": "richa grover",
+    "assignee": null,
+    "labels": [],
+    "components": [],
+    "created": "2026-10-26T14:40:22.282+0530",
+    "updated": "2026-10-30T16:19:26.689+0530",
+    "comments": 0,
+    "subtasks": [],
+    "issue_links": [],
+    "acceptance_criteria": null
+  },
+  "changes_since_previous_snapshot": [
+    "Summary cleaned in Jira on 2026-10-30: trailing 'paste karein' template residue removed; summary is now 'Build Task Manager Application with Agentic SDLC Sync'."
+  ],
+  "gaps": [
+    "No acceptance criteria in the ticket",
+    "'Enterprise-grade' is undefined; no concrete requirements given",
+    "Issue type is Idea in a discovery project, status Parking lot"
+  ],
+  "approval_status": "APPROVED_VIA_INTERACTIVE_HITL",
+  "approval_note": "Interactive HITL Q&A conducted on 2026-11-03 (2 rounds). Scope changed from prior baseline: multi-user with local username/password authentication and per-user task isolation; SDLC sync expanded to include app README/API docs; structured logging added. See the Q&A log in phase-01-requirements.md."
+}

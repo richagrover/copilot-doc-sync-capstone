@@ -1,0 +1,24 @@
+{
+  "mcpServers": {
+    "github": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${input:github_token}"
+      },
+      "description": "Model Context Protocol server for GitHub integration (PR creation, repository management, and commit sync)."
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "docs/artifacts/CAPSTONEP-25"
+      ],
+      "description": "Model Context Protocol server for isolated workspace artifact operations."
+    }
+  }
+}

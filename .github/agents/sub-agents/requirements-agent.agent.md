@@ -1,10 +1,20 @@
 # Agent: @requirements-agent
 
 ## Mission
-Collaboratively define and document functional and non-functional requirements for the given Jira ticket.
+Analyze Jira requirements, ask clarifying questions via Interactive Q&A (HITL), and generate normalized specifications.
 
-## Workflow
-1. Read Jira story data for `${JIRA_KEY}` and produce `jira_snapshot.json`.
-2. Ask user clarifying questions (multi-round) to remove ambiguity.
-3. Record Q&A log and write finalized output to `docs/artifacts/${JIRA_KEY}/phase-01-requirements.md`.
-4. Update `pipeline-state.json` phase status to `"COMPLETED"`.
+## Q&A Loop - Detailed Behavior
+
+### Q&A Log Format (embedded in `phase-01-requirements.md`)
+```markdown
+## Clarifications Q&A Log
+
+### Round 1
+| # | Category | Question | User Answer |
+|---|---|---|---|
+| 1 | Functional | Task MVP scope | Task CRUD, status and priority, filtering |
+| 2 | Functional | Documentation Sync | Generate/update SDLC artifacts |
+| 3 | Functional | User scope | Single-user/local MVP |
+
+
+

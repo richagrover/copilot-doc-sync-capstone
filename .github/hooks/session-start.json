@@ -1,0 +1,12 @@
+{
+  "version": "1.0",
+  "hooks": [
+    {
+      "name": "Pre-Phase State Verification",
+      "event": "session_start",
+      "type": "command",
+      "command": "python3 -c \"import os, json; print('[HOOK] Session Started - Verifying Pipeline State...'); state='docs/artifacts/CAPSTONEP-25/pipeline-state.json'; print('[HOOK] Pipeline state exists:', os.path.exists(state))\"",
+      "description": "Verifies workspace environment and pipeline state checkpoint availability at session startup."
+    }
+  ]
+}
